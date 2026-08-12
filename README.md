@@ -13,6 +13,10 @@ Built for [Perspective](https://www.perspective.co), the AI funnel platform.
 5. **Builds a slide-deck presentation** (6-9 slides, single self-contained HTML file): full-bleed brand photo on the title slide, count-up headline stat, an animated chart drawn from the real weekly numbers, a funnel-step view with per-step drop-offs, comparison table, and next steps. Entrance animations, arrow-key navigation, alternating dark and light slides.
 6. **Delivers everything send-ready:** the HTML file, a stable web link the client can open in any browser, a finished landscape PDF for the classic email attachment, and a 2-sentence summary to paste into the email you send with it. Plus the offer to set it up as a recurring monthly report.
 
+## Example
+
+[See an example report](https://claude.ai/code/artifact/738aeead-82d9-4eb8-8585-cfa91335265e?open_in_browser=1) built with this skill: a July performance report for a retreat brand, with the branding pulled straight from their funnel. Demo data, illustrative numbers — your report will look like *your* client, not like this one.
+
 ## Requirements
 
 - **Perspective MCP** connector, to read the real funnel data. No account yet? See [How to connect the Perspective MCP with Claude](https://intercom.help/perspective-funnels/en/articles/15374243-how-to-connect-perspective-mcp-with-claude) (about 2 minutes).
