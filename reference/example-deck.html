@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Example Performance Report</title>
+
+<style>
+@font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url(data:font/woff2;base64,STRIPPED_FOR_REFERENCE) format('woff2'); }
+@font-face { font-family: 'Nunito Sans'; font-style: normal; font-weight: 600 800; font-display: swap; src: url(data:font/woff2;base64,STRIPPED_FOR_REFERENCE) format('woff2'); }
+
+  :root {
+    --beach: url("data:image/jpeg;base64,STRIPPED_FOR_REFERENCE");
+    --ink: #1d1e20;
+    --paper: #fcfcfb;
+    --grey: #6b6b6b;
+    --line: #e4e2df;
+    --line-dark: #3a3a3a;
+    --grey-light: #d2cfcc;
+    --down: #b3402e;
+    --ocean: #2e6f75;
+    --ocean-light: #8fc1c6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+  body {
+    font-family: "DM Sans", -apple-system, system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+  }
+  .slide {
+    min-height: 100vh;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: max(12vh, 96px) 8vw 8vh;
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+  }
+  .slide.dark { background: var(--ink); color: var(--paper); }
+  .slide.dark .kicker { color: var(--grey-light); }
+  .slide.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--beach); background-size: cover; background-position: center;
+    opacity: 0.55;
+  }
+  .slide.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(29,30,32,0.55) 0%, rgba(29,30,32,0.75) 100%);
+  }
+  .slide.hero > * { position: relative; z-index: 2; }
+  .slide.hero > .footer-note { position: absolute; }
+  .corner-logo {
+    position: absolute;
+    top: 34px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 26px;
+    z-index: 3;
+  }
+  .slide.dark .corner-logo, .slide.hero .corner-logo { filter: invert(1); }
+  .kicker {
+    font-family: "Nunito Sans", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    font-size: clamp(11px, 1.3vw, 14px);
+    color: var(--grey);
+    margin-bottom: 2.2rem;
+    font-weight: 600;
+  }
+  .kicker::before {
+    content: "=";
+    font-weight: 800;
+    margin-right: 0.9em;
+    color: var(--ocean);
+    letter-spacing: 0;
+  }
+  .slide.dark .kicker::before { color: var(--ocean-light); }
+  /* Running footer line, echoes the site's editorial look */
+  .slide:not(.hero)::after {
+    content: "CLIENT NAME · PERFORMANCE REPORT · MONTH YEAR";
+    position: absolute;
+    bottom: 24px;
+    left: 30px;
+    font-family: "Nunito Sans", sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    color: var(--grey);
+    opacity: 0.55;
+  }
+  /* Two invisible columns for paired stats */
+  .duo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2rem, 7vw, 6rem);
+    align-items: start;
+    margin-top: 0.5rem;
+  }
+  .duo .bignum { font-size: clamp(3.4rem, 9vw, 7.5rem); }
+  .duo-sub {
+    font-size: clamp(13px, 1.5vw, 16px);
+    color: var(--grey);
+    line-height: 1.6;
+    margin: 1.2rem auto 0;
+    max-width: 34ch;
+  }
+  @media (max-width: 640px) { .duo { grid-template-columns: 1fr; } }
+  h1, h2 {
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.08;
+  }
+  h1 { font-size: clamp(2.2rem, 6vw, 4.5rem); }
+  h2 { font-size: clamp(1.6rem, 4vw, 3rem); max-width: 22ch; }
+  .bignum {
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 800;
+    font-size: clamp(5rem, 17vw, 12rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .biglabel {
+    font-family: "Nunito Sans", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: clamp(13px, 1.6vw, 17px);
+    font-weight: 700;
+    margin-top: 1.4rem;
+  }
+  .delta {
+    display: inline-block;
+    margin-top: 1.6rem;
+    font-size: clamp(14px, 1.8vw, 19px);
+    font-weight: 500;
+  }
+  .delta.up { color: var(--ocean); }
+  .slide.dark .delta.up { color: var(--ocean-light); }
+  .delta.up::before { content: "▲ "; font-size: 0.75em; }
+  .sub {
+    max-width: 56ch;
+    font-size: clamp(15px, 1.9vw, 20px);
+    line-height: 1.65;
+    color: var(--grey);
+    margin-top: 1.8rem;
+  }
+  .slide.dark .sub, .slide.hero .sub { color: var(--grey-light); }
+  .logo { height: 54px; margin-bottom: 3rem; }
+  .slide.dark .logo, .slide.hero .logo { filter: invert(1); }
+  table {
+    border-collapse: collapse;
+    margin-top: 2.6rem;
+    font-size: clamp(13px, 1.6vw, 17px);
+    width: min(720px, 90vw);
+  }
+  th, td { padding: 0.85em 1em; text-align: left; border-bottom: 1px solid var(--line-dark); }
+  th {
+    font-family: "Nunito Sans", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.72em;
+    font-weight: 700;
+    color: var(--grey-light);
+  }
+  td:not(:first-child), th:not(:first-child) { text-align: right; }
+  .pos { color: var(--ocean-light); font-weight: 500; }
+  ol.next {
+    text-align: left;
+    max-width: 58ch;
+    margin-top: 2.4rem;
+    list-style: none;
+    counter-reset: step;
+  }
+  ol.next li {
+    counter-increment: step;
+    padding: 1.3em 0;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 1.2em;
+    align-items: baseline;
+    font-size: clamp(15px, 1.9vw, 19px);
+    line-height: 1.55;
+  }
+  ol.next li::before {
+    content: counter(step, decimal-leading-zero);
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 800;
+    font-size: 1.2em;
+    color: var(--grey-light);
+    flex-shrink: 0;
+  }
+  ol.next li strong { display: block; text-transform: uppercase; font-family: "Nunito Sans", sans-serif; letter-spacing: 0.08em; font-size: 0.85em; margin-bottom: 0.25em; }
+  /* Line chart */
+  .chartwrap { width: min(760px, 88vw); margin-top: 2.5rem; }
+  .chartwrap svg { width: 100%; height: auto; overflow: visible; }
+  .chart-line {
+    fill: none;
+    stroke: var(--paper);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1200;
+    stroke-dashoffset: 1200;
+  }
+  .in .chart-line { animation: draw 1.8s cubic-bezier(0.6, 0, 0.2, 1) 0.3s forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .chart-area {
+    fill: url(#fadefill);
+    opacity: 0;
+    transition: opacity 1s ease 1.4s;
+  }
+  .in .chart-area { opacity: 1; }
+  .chart-dot { fill: var(--paper); opacity: 0; transition: opacity 0.4s ease; }
+  .in .chart-dot { opacity: 1; }
+  .in .chart-dot:nth-of-type(1) { transition-delay: 0.55s; }
+  .in .chart-dot:nth-of-type(2) { transition-delay: 0.95s; }
+  .in .chart-dot:nth-of-type(3) { transition-delay: 1.35s; }
+  .in .chart-dot:nth-of-type(4) { transition-delay: 1.75s; }
+  .chart-val {
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 800;
+    font-size: 26px;
+    fill: var(--paper);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .in .chart-val { opacity: 1; }
+  .in .chart-val:nth-of-type(1) { transition-delay: 0.65s; }
+  .in .chart-val:nth-of-type(2) { transition-delay: 1.05s; }
+  .in .chart-val:nth-of-type(3) { transition-delay: 1.45s; }
+  .in .chart-val:nth-of-type(4) { transition-delay: 1.85s; }
+  .chart-week {
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    fill: var(--grey-light);
+  }
+  /* Funnel concept: step flow + clean phone-format screens */
+  .concept {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    gap: clamp(2.5rem, 7vw, 6.5rem);
+    align-items: center;
+    margin-top: clamp(1.5rem, 4vh, 3rem);
+    width: min(1140px, 94vw);
+    text-align: left;
+  }
+  .steps { position: relative; }
+  .step {
+    display: flex;
+    gap: 1.1em;
+    position: relative;
+    padding: 0 0 clamp(1.2rem, 3vh, 2.2rem) 0;
+  }
+  .step-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 14px;
+  }
+  .step-rail .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--ink);
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+  .step:last-child .step-rail .dot { background: var(--ocean); box-shadow: 0 0 0 4px rgba(46,111,117,0.15); }
+  .step-rail .rail {
+    width: 1.5px;
+    flex: 1;
+    background: var(--line);
+    margin-top: 4px;
+  }
+  .step:last-child .step-rail .rail { display: none; }
+  .step-body { flex: 1; min-width: 0; }
+  .step-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1em;
+  }
+  .step-top strong {
+    font-family: "Nunito Sans", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: clamp(13px, 1.6vw, 17px);
+    font-weight: 800;
+  }
+  .step:last-child .step-top strong { color: var(--ocean); }
+  .step-top .cnt {
+    font-variant-numeric: tabular-nums;
+    color: var(--grey);
+    font-size: clamp(13px, 1.6vw, 16px);
+    white-space: nowrap;
+  }
+  .step-body p {
+    color: var(--grey);
+    font-size: clamp(13px, 1.5vw, 16px);
+    line-height: 1.55;
+    margin-top: 0.3em;
+    max-width: 46ch;
+  }
+  .drop {
+    display: inline-block;
+    margin-top: 0.45em;
+    font-family: "Nunito Sans", sans-serif;
+    font-size: clamp(10px, 1.2vw, 12px);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--grey);
+    background: #edece9;
+    border-radius: 99px;
+    padding: 0.35em 0.9em;
+  }
+  .drop.hl { background: var(--ink); color: var(--paper); }
+  .shots {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(1rem, 2.5vw, 1.8rem);
+    align-items: center;
+  }
+  .shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  .shot {
+    width: 100%;
+    max-width: min(250px, 28vh);
+    justify-self: center;
+    aspect-ratio: 9 / 17.5;
+    border-radius: clamp(18px, 2vw, 26px);
+    overflow: hidden;
+    box-shadow: 0 30px 60px -22px rgba(29, 30, 32, 0.4);
+    border: 1px solid rgba(29, 30, 32, 0.1);
+    background: var(--paper);
+    flex-shrink: 0;
+  }
+  .shot:nth-child(2) { transform: translateY(clamp(12px, 3vh, 28px)); }
+  @media (max-width: 760px) {
+    .concept { grid-template-columns: 1fr; }
+    .shots { display: none; }
+  }
+  .indicator {
+    position: fixed;
+    bottom: 22px;
+    right: 26px;
+    font-family: "Nunito Sans", sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    z-index: 10;
+    color: #999;
+  }
+  .fade { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .fade.in { opacity: 1; transform: none; }
+  .footer-note {
+    position: absolute;
+    bottom: 26px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--grey-light);
+    font-family: "Nunito Sans", sans-serif;
+  }
+  @page { size: A4 landscape; margin: 0; }
+  @media print {
+    html { scroll-snap-type: none; }
+    .slide {
+      min-height: 0;
+      height: 210mm;
+      page-break-after: always;
+      padding: 18mm 22mm;
+      overflow: hidden;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .slide:last-of-type { page-break-after: auto; }
+    .indicator { display: none; }
+    .fade, .chart-area, .chart-dot, .chart-val { opacity: 1 !important; transform: none !important; transition: none !important; }
+    .chart-line { stroke-dashoffset: 0 !important; animation: none !important; }
+    .concept { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) !important; }
+    .shots { display: grid !important; }
+    .duo { grid-template-columns: 1fr 1fr !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 1 · Title -->
+<section class="slide dark hero">
+  <img class="logo fade" src="data:image/png;base64,STRIPPED_FOR_REFERENCE" alt="Client logo">
+  <p class="kicker fade" style="color:#e8e6e3">Example Funnel</p>
+  <h1 class="fade">Performance Report<br>July 2026</h1>
+  <p class="sub fade" style="color:#e8e6e3">Compared with June 2026 · All numbers from live funnel tracking</p>
+  <p class="footer-note fade">Prepared August 2026</p>
+</section>
+
+<!-- 2 · Headline -->
+<section class="slide">
+  <img class="corner-logo" src="data:image/png;base64,STRIPPED_FOR_REFERENCE" alt="Client logo">
+  <p class="kicker fade">The headline</p>
+  <div class="bignum fade countup" data-target="187">0</div>
+  <p class="biglabel fade">New leads in July</p>
+  <span class="delta up fade">+55% (187 vs. 121 leads in June)</span>
+  <p class="sub fade">The strongest month since launch. More people entered the funnel, and a higher share of them completed it.</p>
+</section>
+
+<!-- 3 · Leads over time chart -->
+<section class="slide dark">
+  <img class="corner-logo" src="data:image/png;base64,STRIPPED_FOR_REFERENCE" alt="Client logo">
+  <p class="kicker fade">Momentum</p>
+  <h2 class="fade">Leads grew every single week</h2>
+  <div class="chartwrap fade">
+    <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" aria-label="Leads per week in July">
+      <defs>
+        <linearGradient id="fadefill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#fcfcfb" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="#fcfcfb" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path class="chart-area" d="M 80 190 C 190 178, 250 172, 340 160 C 430 148, 490 132, 570 108 C 620 93, 650 72, 680 52 L 680 260 L 80 260 Z"/>
+      <path class="chart-line" d="M 80 190 C 190 178, 250 172, 340 160 C 430 148, 490 132, 570 108 C 620 93, 650 72, 680 52"/>
+      <circle class="chart-dot" cx="80" cy="190" r="7"/>
+      <circle class="chart-dot" cx="340" cy="160" r="7"/>
+      <circle class="chart-dot" cx="570" cy="108" r="7"/>
+      <circle class="chart-dot" cx="680" cy="52" r="7" style="fill: var(--ocean-light)"/>
+      <text class="chart-val" x="80" y="160" text-anchor="middle">34</text>
+      <text class="chart-val" x="340" y="130" text-anchor="middle">41</text>
+      <text class="chart-val" x="570" y="78" text-anchor="middle">49</text>
+      <text class="chart-val" x="680" y="24" text-anchor="middle" style="fill: var(--ocean-light)">63</text>
+      <text class="chart-week" x="80" y="292" text-anchor="middle">WEEK 1</text>
+      <text class="chart-week" x="340" y="292" text-anchor="middle">WEEK 2</text>
+      <text class="chart-week" x="570" y="292" text-anchor="middle">WEEK 3</text>
+      <text class="chart-week" x="680" y="292" text-anchor="middle">WEEK 4</text>
+    </svg>
+  </div>
+  <p class="sub fade">63 leads in the final week alone, nearly double week one. The new Instagram creatives launched mid-month are doing the heavy lifting.</p>
+</section>
+
+<!-- 4 · Traffic & Efficiency -->
+<section class="slide">
+  <img class="corner-logo" src="data:image/png;base64,STRIPPED_FOR_REFERENCE" alt="Client logo">
+  <p class="kicker fade">Traffic &amp; Efficiency</p>
+  <div class="duo">
+    <div class="fade">
+      <div class="bignum countup" data-target="2481">0</div>
+      <p class="biglabel">Funnel sessions</p>
+      <span class="delta up">+32% (2,481 vs. 1,876)</span>
+      <p class="duo-sub">Instagram drove 44% of all leads, up from 31% in June, and is now the clear number one channel.</p>
+    </div>
+    <div class="fade">
+      <div class="bignum">7.5%</div>
+      <p class="biglabel">Visitor-to-lead rate</p>
+      <span class="delta up">+1.1 points (7.5% vs. 6.4%)</span>
+      <p class="duo-sub">A higher share of visitors became leads. Growth and efficiency moved up together, the healthiest way to scale.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · Funnel concept -->
+<section class="slide">
+  <img class="corner-logo" src="data:image/png;base64,STRIPPED_FOR_REFERENCE" alt="Client logo">
+  <p class="kicker fade">The funnel concept</p>
+  <h2 class="fade">Five steps to a booked spot</h2>
+  <div class="concept">
+    <div class="steps">
+      <div class="step fade">
+        <div class="step-rail"><span class="dot"></span><span class="rail"></span></div>
+        <div class="step-body">
+          <div class="step-top"><strong>Start · More than a retreat</strong><span class="cnt">2,481 visitors</span></div>
+          <p>Video hook sets the tone: this is a reset, not a vacation.</p>
+        </div>
+      </div>
+      <div class="step fade">
+        <div class="step-rail"><span class="dot"></span><span class="rail"></span></div>
+        <div class="step-body">
+          <div class="step-top"><strong>Micro Commitment</strong><span class="cnt">1,017 · 41%</span></div>
+          <p>One quick question about priorities creates instant buy-in.</p>
+          <span class="drop hl">&minus;59% · biggest exit, watch this step</span>
+        </div>
+      </div>
+      <div class="step fade">
+        <div class="step-rail"><span class="dot"></span><span class="rail"></span></div>
+        <div class="step-body">
+          <div class="step-top"><strong>Retreat Selection</strong><span class="cnt">595 · 24%</span></div>
+          <p>Austria (4 days) or Portugal (7 days): visitors pick their path.</p>
+          <span class="drop">&minus;41% exit here</span>
+        </div>
+      </div>
+      <div class="step fade">
+        <div class="step-rail"><span class="dot"></span><span class="rail"></span></div>
+        <div class="step-body">
+          <div class="step-top"><strong>Qualification</strong><span class="cnt">298 · 12%</span></div>
+          <p>Timing and investment questions filter for serious interest.</p>
+          <span class="drop">&minus;50% exit here</span>
+        </div>
+      </div>
+      <div class="step fade">
+        <div class="step-rail"><span class="dot"></span><span class="rail"></span></div>
+        <div class="step-body">
+          <div class="step-top"><strong>Lead ✓ Contact details</strong><span class="cnt">187 · 7.5%</span></div>
+          <p>Qualified prospects leave their details, ready for follow-up.</p>
+        </div>
+      </div>
+    </div>
+    <div class="shots fade">
+      <div class="shot"><img src="data:image/jpeg;base64,STRIPPED_FOR_REFERENCE" alt="Funnel start page"></div>
+      <div class="shot"><img src="data:image/jpeg;base64,STRIPPED_FOR_REFERENCE" alt="Retreat selection page"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · Table -->
+<section class="slide dark">
+  <img class="corner-logo" src="data:image/png;base64,STRIPPED_FOR_REFERENCE" alt="Client logo">
+  <p class="kicker fade">The numbers, side by side</p>
+  <h2 class="fade">Example Funnel</h2>
+  <table class="fade">
+    <thead>
+      <tr><th>Metric</th><th>July 2026</th><th>June 2026</th><th>Change</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Sessions</td><td>2,481</td><td>1,876</td><td class="pos">+32%</td></tr>
+      <tr><td>New leads</td><td>187</td><td>121</td><td class="pos">+55%</td></tr>
+      <tr><td>Conversion rate</td><td>7.5%</td><td>6.4%</td><td class="pos">+1.1 pts</td></tr>
+      <tr><td>Instagram share of leads</td><td>44%</td><td>31%</td><td class="pos">+13 pts</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 7 · Next steps -->
+<section class="slide">
+  <img class="corner-logo" src="data:image/png;base64,STRIPPED_FOR_REFERENCE" alt="Client logo">
+  <p class="kicker fade">What we do next</p>
+  <h2 class="fade">Three moves for August</h2>
+  <ol class="next fade">
+    <li><div><strong>Scale Instagram</strong>Shift more budget to the mid-month creatives that drove the week-4 record. Target: 250+ leads in August.</div></li>
+    <li><div><strong>Launch retargeting</strong>1,000+ visitors reached "Retreat Selection" without finishing. A retargeting audience of warm prospects is ready to activate.</div></li>
+    <li><div><strong>Keep tuning the opening step</strong>Micro Commitment is still the biggest exit (59 of 100 leave). The June rework lifted it from 24% to 41% pass-rate; a new variant goes live in week one.</div></li>
+  </ol>
+</section>
+
+<!-- 8 · Closing -->
+<section class="slide dark hero">
+  <img class="logo fade" src="data:image/png;base64,STRIPPED_FOR_REFERENCE" alt="Client logo">
+  <h2 class="fade">Questions? Let's talk.</h2>
+  <p class="sub fade" style="color:#e8e6e3">Full data available on request · Report period July 1 to 31, 2026</p>
+</section>
+
+<div class="indicator"><span id="cur">1</span> / 8</div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const cur = document.getElementById('cur');
+
+  function countUp(el) {
+    if (el.dataset.done) return;
+    el.dataset.done = '1';
+    const target = parseInt(el.dataset.target, 10);
+    const dur = 1400, t0 = performance.now();
+    const fmt = n => n.toLocaleString('en-US');
+    (function tick(t) {
+      const p = Math.min((t - t0) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(Math.round(target * eased));
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        if (e.target.classList.contains('in')) { cur.textContent = slides.indexOf(e.target) + 1; return; }
+        e.target.classList.add('in');
+        let delay = 200;
+        e.target.querySelectorAll('.fade').forEach(el => {
+          el.style.transitionDelay = delay + 'ms';
+          el.classList.add('in');
+          delay += (el.classList.contains('step') || el.classList.contains('shots')) ? 450 : 150;
+        });
+        e.target.querySelectorAll('.countup').forEach(countUp);
+        cur.textContent = slides.indexOf(e.target) + 1;
+      } else {
+        // reset so the entrance replays next time the slide is entered
+        e.target.classList.remove('in');
+        e.target.querySelectorAll('.fade').forEach(el => { el.style.transitionDelay = '0ms'; el.classList.remove('in'); });
+        e.target.querySelectorAll('.countup').forEach(el => { delete el.dataset.done; el.textContent = '0'; });
+      }
+    });
+  }, { threshold: 0.35 });
+  slides.forEach(s => io.observe(s));
+  
+  function preparePrint() {
+    slides.forEach(s => s.classList.add('in'));
+    document.querySelectorAll('.fade').forEach(el => { el.style.transitionDelay = '0ms'; el.classList.add('in'); });
+    document.querySelectorAll('.countup').forEach(el => {
+      el.dataset.done = '1';
+      el.textContent = parseInt(el.dataset.target, 10).toLocaleString('en-US');
+    });
+  }
+  window.addEventListener('beforeprint', preparePrint);
+
+
+
+  document.addEventListener('keydown', e => {
+    const idx = slides.findIndex(s => {
+      const r = s.getBoundingClientRect();
+      return r.top >= -window.innerHeight / 2 && r.top < window.innerHeight / 2;
+    });
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      slides[Math.min(idx + 1, slides.length - 1)].scrollIntoView();
+    }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      slides[Math.max(idx - 1, 0)].scrollIntoView();
+    }
+  });
+</script>
+</body>
+</html>

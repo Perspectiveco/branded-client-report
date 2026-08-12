@@ -73,6 +73,8 @@ Writing rules, and why:
 
 The output is a single-file HTML presentation, truly self-contained: embed the logo, all images, AND the brand fonts as data URIs. Fonts: fetch the Google Fonts css2 URL for the needed families/weights, download the latin woff2 files, base64 them into `@font-face` rules (variable fonts cover several weights with one file; declare `font-weight: 400 700` ranges instead of duplicating). Self-contained means the file works offline, in side panels, AND as a hosted artifact (whose CSP blocks all external hosts).
 
+**Read `reference/example-deck.html` before you write any markup.** It is a real, approved deck from a past run with the images and fonts stripped out, so it is small enough to read in full. Use it for the structural and CSS patterns that took several rounds of feedback to get right: slide scaffolding and scroll-snap, the entrance-animation observer with per-element `transitionDelay`, the count-up, the self-drawing SVG chart, the funnel step timeline with drop-off chips, the screenshot frames, the print rules. Copy the mechanics, never the content or the styling: colors, fonts, imagery, wording and slide count come from this client's brand and this client's data. A deck that looks like the example instead of like the client has failed.
+
 A scroll-snap, slide-style HTML deck (6-9 slides), presentable live in a call and exportable to PDF:
 
 - Title slide: logo, "Performance Report [Month]"; if the client has a strong brand photo, use it full-bleed with a dark overlay

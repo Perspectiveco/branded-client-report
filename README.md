@@ -15,7 +15,9 @@ Built for [Perspective](https://www.perspective.co), the AI funnel platform.
 
 ## Example
 
-[See an example report](https://claude.ai/code/artifact/738aeead-82d9-4eb8-8585-cfa91335265e?open_in_browser=1) built with this skill: a July performance report for a retreat brand, with the branding pulled straight from their funnel. Demo data, illustrative numbers — your report will look like *your* client, not like this one.
+`reference/example-deck.html` is a real deck produced by this skill, with the images and fonts stripped out so it stays readable. Open it in a browser to see the structure and the animations, or read the source to see how they are built.
+
+It ships inside the packaged skill too: Claude reads it before writing any markup, so the patterns that took several rounds of feedback to get right (entrance animations, the self-drawing chart, the funnel step timeline, the print rules) come out right on the first attempt. It is a mechanics reference, never a template. Colors, fonts, imagery and wording always come from your client's own brand.
 
 ## Requirements
 
@@ -37,8 +39,10 @@ You can also install from source by copying `SKILL.md` into your skills director
 ```
 .
 ├── README.md
-├── branded-client-report.skill     # packaged, installable skill
-└── SKILL.md                        # skill instructions + frontmatter
+├── branded-client-report.skill     # packaged, installable skill (SKILL.md + reference)
+├── SKILL.md                        # skill instructions + frontmatter
+└── reference/
+    └── example-deck.html           # example output, read by Claude as a mechanics reference
 ```
 
 ## Guardrails
